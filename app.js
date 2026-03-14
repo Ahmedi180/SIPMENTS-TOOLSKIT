@@ -116,7 +116,7 @@ if (/-E\s*FORM/i.test(company) || /-EFORM/i.test(company)) return false;
 if (value >= 500) return false;
 
 // Sialkot city filter
-if (!(city.includes("SIALKOT") || city.includes("SKT") || city.includes("SKTA"))) return false;
+if (city.includes("SIALKOT") || city.includes("SKT")) { return true;
   
 // lahore ko force reject
 if (city.includes("LAHORE")) return false;

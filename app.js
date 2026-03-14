@@ -117,6 +117,9 @@ if (value >= 500) return false;
 
 // Sialkot city filter
 if (!(city.includes("SIALKOT") || city.includes("SKT") || city.includes("SKTA"))) return false;
+  
+// lahore ko force reject
+if (city.includes("LAHORE")) return false;
 
   return true;
 });

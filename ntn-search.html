@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NTN Search Tool</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="cube">🧊</span> Shipment Tools</div>
+      <nav class="nav">
+        <a href="dashboard.html"><span class="nav-icon">▦</span>Dashboard</a>
+        <a href="hs-code.html"><span class="nav-icon">🧾</span>HS Code</a>
+        <a href="ntn-missing.html"><span class="nav-icon">👤</span>NTN Missing</a>
+        <a href="bucket-shop.html"><span class="nav-icon">🏪</span>Bucket Shop</a>
+        <a href="duplicate.html"><span class="nav-icon">📄</span>Duplicate</a>
+        <a class="active" href="ntn-search.html"><span class="nav-icon">🔎</span>NTN Search</a>
+        <a href="auto-ntn-update.html"><span class="nav-icon">🔄</span>Auto NTN Update</a>
+        <a href="#" onclick="return logoutNow()"><span class="nav-icon">↪</span>Log Out</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <h1>NTN Search Tool</h1>
+        <button class="logout" onclick="logoutNow()">Log Out</button>
+      </div>
+
+      <div class="main-wrap ntn-page">
+        <div class="ntn-hero-card">
+          <div>
+            <h2 class="panel-title ntn-hero-title">Search NTN by Company, REFF, CNIC or NTN</h2>
+            <p class="ntn-hero-copy">Live search results appear below. You can import Excel, copy values instantly, add new companies, edit records, and mark NTN as expired or active.</p>
+          </div>
+          <div class="ntn-hero-actions">
+            <button class="ntn-action-btn" type="button" onclick="document.getElementById('excelUpload').click()">📤 Upload Excel</button>
+            <button class="ntn-action-btn light" type="button" onclick="openManage()">⚙ Manage Companies</button>
+            <button class="ntn-action-btn light" type="button" onclick="openAddNew()">＋ Add Company</button>
+          </div>
+        </div>
+
+        <div class="ntn-search-card">
+          <div class="ntn-search-row">
+            <div class="search-bar ntn-search-main">
+              <input id="companySearch" type="text" placeholder="Search by REFF, company name, CNIC or NTN">
+              <button id="searchBtn" type="button">Search</button>
+            </div>
+          </div>
+          <input type="file" id="excelUpload" accept=".xlsx,.xls" style="display:none">
+          <div class="ntn-meta-row">
+            <div id="ntnSearchInfo" class="search-info">Start typing to see live results.</div>
+            <div class="ntn-mini-stats">
+              <div class="ntn-mini-box"><span>Total Records</span><strong id="ntnTotalRecords">0</strong></div>
+              <div class="ntn-mini-box"><span>Expired NTN</span><strong id="ntnExpiredCount">0</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="ntnEmptyState" class="ntn-empty-state hidden-block">
+          <div class="ntn-empty-icon">🔎</div>
+          <h3>No results found</h3>
+          <p>Try another search or add a new company record.</p>
+          <button class="ntn-action-btn" type="button" onclick="openAddNew()">Add New Company</button>
+        </div>
+
+        <div class="table-card ntn-results-card">
+          <table>
+            <thead>
+              <tr>
+                <th>REFF</th>
+                <th>Company Name</th>
+                <th>CNIC</th>
+                <th>NTN</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ntnSearchBody">
+              <tr><td colspan="6">No results yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="footer-credit">A Project Created By <span>Imran Ahmed</span></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="manageModal" class="modal-manage">
+    <div class="manage-modal-box wide">
+      <h3>Manage Companies</h3>
+      <input id="companySearchManage" class="manage-search-input" placeholder="Search REFF, company, CNIC or NTN">
+      <div class="manage-actions-row">
+        <label class="select-all-label"><input type="checkbox" id="selectAllCompanies"> Select All</label>
+        <div class="manage-button-stack">
+          <button type="button" class="danger-btn" onclick="deleteSelectedCompanies()">Delete Selected</button>
+          <button type="button" class="primary-btn small" onclick="closeManage()">Close</button>
+        </div>
+      </div>
+      <div class="table-card" style="max-width:100%">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px">Select</th>
+              <th>REFF</th>
+              <th>Company</th>
+              <th>CNIC</th>
+              <th>NTN</th>
+              <th>Status</th>
+              <th style="width:170px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="companyTable"><tr><td colspan="7">No companies found</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="addEditModal" class="modal-manage">
+    <div class="add-edit-box wide-form">
+      <h3 id="addEditTitle">Add New Company</h3>
+      <div class="form-row two-cols">
+        <input id="companyReffInput" type="text" placeholder="REFF number">
+        <input id="companyNameInput" type="text" placeholder="Company name">
+      </div>
+      <div class="form-row two-cols">
+        <input id="companyCNICInput" type="text" placeholder="CNIC">
+        <input id="companyNTNInput" type="text" placeholder="NTN">
+      </div>
+      <label class="status-check"><input type="checkbox" id="companyExpiredInput"> Mark this record as NTN EXPIRE</label>
+      <div class="manage-modal-footer">
+        <button type="button" class="primary-btn small" id="saveCompanyBtn">Save</button>
+        <button type="button" class="primary-btn small light-outline" onclick="closeAddNew()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="seed-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
